@@ -24,17 +24,14 @@ def listar_usuarios():
         session.close()
         return
 
-    # Para cada Departamento, mostramos un expander que contiene su lista de cursos
     for u in usuarios:
         with st.expander(f"ID {u.id} → {u.nombre}", expanded=False):
             # Mostrar atributos básicos
             st.write(f"**ID:** {u.id}")
             st.write(f"**Nombre:** {u.nombre}")
 
-            # Si el departamento tiene cursos relacionados, listarlos
             if u.publicaciones:
                 st.write("**Publicaciones asociadas:**")
-                # Usamos st.table para mostrar una tabla sencilla con el id, título e instructor
                 filas = []
                 for p in u.publicaciones:
                     filas.append({
@@ -68,36 +65,21 @@ def listar_publicaciones():
     session.close()
 
 def listar_reacciones():
+    """
+    Muestra todas las reacciones de los usuarios a publicaciones en un formato tipo cascada.
+    """
     st.header("Reacciones")
     session = get_session()
-    usuarios = session.query(Usuario).all()
+    reacciones = session.query(Reaccion).all()
 
-
-    if not usuarios:
-        st.info("No hay registros en 'Usuario'.")
-        session.close()
+    if not reacciones:
+        st.info("No hay reacciones registradas.")
         return
 
-    # Para cada Departamento, mostramos un expander que contiene su lista de cursos
-    for u in usuarios:
-        with st.expander(f"ID {u.id} → {u.nombre}", expanded=False):
-            # Mostrar atributos básicos
-            st.write(f"**ID:** {u.id}")
-            st.write(f"**Nombre:** {u.nombre}")
-
-            # Si el departamento tiene cursos relacionados, listarlos
-            if u.publicaciones:
-                st.write("**Publicaciones asociadas:**")
-                # Usamos st.table para mostrar una tabla sencilla con el id, título e instructor
-                filas = []
-                for p in u.publicaciones:
-                    filas.append({
-                        "Publicación ID": p.id,
-                        "Mensaje": p.mensaje,
-                    })
-                st.table(filas)
-            else:
-                st.write("_No hay publicaciones asociadas a este usuario._")
+    for r in reacciones:
+        with st.expander(f"ID {r.publicacion.id} → {r.tipo_emocion}", expanded=False):
+            st.markdown(f'{r.usuario.nombre} reaccionó de esta manera, {r.tipo_emocion}, a esta publicación: “{r.publicacion.mensaje}”')
+    
     session.close()
 
 def main():
@@ -116,21 +98,8 @@ def main():
         listar_usuarios()
     elif entidad == "Publicación":
         listar_publicaciones()
-    elif entidad == "Curso":
-        pass
-        # listar_cursos()
-    elif entidad == "Estudiante":
-        pass
-        # listar_estudiantes()
-    elif entidad == "Inscripción":
-        pass
-        # listar_inscripciones()
-    elif entidad == "Tarea":
-        pass
-        # listar_tareas()
-    elif entidad == "Entrega":
-        pass
-        # listar_entregas()
+    elif entidad == "Reacción":
+        listar_reacciones()
 
 
 if __name__ == "__main__":
